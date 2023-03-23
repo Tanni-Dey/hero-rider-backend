@@ -77,6 +77,14 @@ async function run() {
       const isAdmin = user.role === "admin";
       res.send({ admin: isAdmin });
     });
+
+    //get profile api
+    app.get("/profile", async (req, res) => {
+      const profileEmail = req.query.email;
+      const query = { email: profileEmail };
+      const profile = await userCollection.findOne(query);
+      res.send(profile);
+    });
   } finally {
   }
 }
