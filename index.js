@@ -54,9 +54,7 @@ async function run() {
         const findPhone = userCollection.find(phone);
         allUser = await findPhone.toArray();
       }
-
       res.send(allUser);
-      console.log(allUser);
     });
 
     //register user api
@@ -70,6 +68,14 @@ async function run() {
     app.get("/pagination", async (req, res) => {
       const count = await userCollection.countDocuments();
       res.send({ count });
+    });
+
+    //check admin role
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
     });
   } finally {
   }
