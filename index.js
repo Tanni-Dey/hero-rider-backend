@@ -19,6 +19,58 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
+    const userCollection = client.db("jobtask").collection("heroRiderUsers");
+
+    // all data show api
+    app.get("/users", async (req, res) => {
+      const page = Number(req.query.page);
+      const size = Number(req.query.size);
+      const searchEmail = req.query.email;
+      const searchFullname = req.query.fullName;
+      const searchPhone = req.query.phone;
+      const query = {};
+      const cursor = userCollection.find(query);
+      let allUser;
+      if (page || size) {
+        allUser = await cursor
+          .skip(size * page)
+          .limit(size)
+          .toArray();
+      } else {
+        allUser = await cursor.toArray();
+      }
+      if (searchFullname) {
+        const fullName = { fullName: searchFullname };
+        const findFullName = userCollection.find(fullName);
+        allUser = await findFullName.toArray();
+      }
+      if (searchEmail) {
+        const email = { email: searchEmail };
+        const findEmail = userCollection.find(email);
+        allUser = await findEmail.toArray();
+      }
+      if (searchPhone) {
+        const phone = { phone: searchPhone };
+        const findPhone = userCollection.find(phone);
+        allUser = await findPhone.toArray();
+      }
+
+      res.send(allUser);
+      console.log(allUser);
+    });
+
+    //register user api
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+      const addUser = await userCollection.insertOne(newUser);
+      res.send(addUser);
+    });
+
+    //pagination
+    app.get("/pagination", async (req, res) => {
+      const count = await userCollection.countDocuments();
+      res.send({ count });
+    });
   } finally {
   }
 }
